@@ -1,0 +1,58 @@
+services:
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: Admin
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_REDIS_HOST: redis
+    volumes: ['./:/var/www/html']
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - wordpress
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql-wordpress
+    restart: always
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_ROOT_PASSWORD: Admin
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    networks:
+      - wordpress
+
+  redis:
+    image: redis:latest
+    container_name: redis-wordpress
+    restart: always
+    networks:
+      - wordpress
+      
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin-wordpress
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_ARBITRARY: 1
+      MYSQL_ROOT_PASSWORD: Admin
+    depends_on:
+      - mysql
+    networks:
+      - wordpress
+
+networks:
+  wordpress:
+      name: wordpress
+volumes:
+  mysql_data:
